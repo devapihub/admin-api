@@ -1,4 +1,5 @@
 name: ci
+
 on:
   push:
     branches: [ main ]
@@ -11,8 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: '21', cache: maven }
-      - run: mvn -B -ntp clean install
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build with Maven
+        run: mvn -B -ntp clean install
       - name: Compute IMAGE_TAG
         id: tag
         run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
@@ -22,22 +27,25 @@ jobs:
           name: jar-file
           path: target/admin-1.0.0.jar
           if-no-files-found: error
+          retention-days: 7
 
   pack:
     runs-on: ubuntu-24.04
     needs: [build]
-    env:
-      IMAGE_TAG: ${{ needs.build.outputs.IMAGE_TAG }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with: { name: jar-file, path: target }
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jar-file
+          path: target
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-      - uses: docker/build-push-action@v5
+      - name: Build and push image
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
@@ -52,7 +60,8 @@ jobs:
     env:
       IMAGE_TAG: ${{ needs.build.outputs.IMAGE_TAG }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
         with:
           repository: devapihub/argocd
           ref: main
@@ -65,24 +74,31 @@ jobs:
           YQ_VERSION=v4.44.3
           curl -sL https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -o /usr/local/bin/yq
           chmod +x /usr/local/bin/yq
-      - name: Update image tag in manifest
+
+      - name: Update image tag
         env:
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
           IMAGE_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/admin-api
           FILE: app/admin-api/k8s/admin-api-deployment.yaml
           CONTAINER: admin-api
         run: |
+          test -f "$FILE" || { echo "Not found: $FILE"; exit 1; }
           yq -i '
-            (.spec.template.spec.containers[]
-              | select(.name == env(CONTAINER))
+            (.spec.template.spec.containers[] 
+              | select(.name == env(CONTAINER)) 
               | .image) = (env(IMAGE_REPO) + ":" + env(IMAGE_TAG))
           ' "$FILE"
+          echo "Changed:"
           git --no-pager diff -- "$FILE" || true
+
       - name: Commit & push
-        env: { GH_PAT: ${{ secrets.GH_PAT_PUSH }} }
+        env:
+          GH_PAT: ${{ secrets.GH_PAT_PUSH }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add app/admin-api/k8s/admin-api-deployment.yaml
-          git commit -m "chore(admin-api): bump image to ${IMAGE_TAG}" || echo "No changes"
+          git commit -m "chore(admin-api): bump image to ${IMAGE_TAG}" || echo "No changes to commit"
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/devapihub/argocd.git
           git push origin HEAD:main
+  
