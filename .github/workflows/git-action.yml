@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 env:
-  IMAGE_TAG: "1.0.2"
+  IMAGE_TAG: "1.0.0"
 
 jobs:
   build:
