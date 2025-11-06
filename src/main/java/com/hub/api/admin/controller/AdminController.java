@@ -13,7 +13,10 @@ import java.util.Map;
 public class AdminController {
     @GetMapping
     public Object hello() {
-        return Map.of("status", 200, "message", "Success");
+        return Map.of("status", 200, "message",
+                "Success", "data",
+                Map.of("id", 1, "username", "Hugh")
+        );
     }
 
     @GetMapping("user")
