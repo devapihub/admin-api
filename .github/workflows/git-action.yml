@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 env:
-  IMAGE_TAG: "1.0.0"
+  IMAGE_TAG: "1.0.3"
 
 jobs:
   build:
@@ -52,7 +52,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/admin-api:${{ env.IMAGE_TAG }}
             ${{ secrets.DOCKERHUB_USERNAME }}/admin-api:latest
 
-  bump-manifest:
+  deploy:
     runs-on: ubuntu-24.04
     needs: [ pack ]
     steps:
