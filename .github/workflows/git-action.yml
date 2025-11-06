@@ -20,7 +20,7 @@ jobs:
         run: mvn -B -ntp clean install
       - name: Compute IMAGE_TAG
         id: tag
-        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
@@ -32,6 +32,8 @@ jobs:
   pack:
     runs-on: ubuntu-24.04
     needs: [build]
+    env:
+      IMAGE_TAG: ${{ needs.build.outputs.IMAGE_TAG }}
     steps:
       - uses: actions/checkout@v4
       - name: Download artifact
@@ -44,6 +46,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+
+      - name: Sanity check tag
+        run: |
+          echo "IMAGE_TAG=${IMAGE_TAG}"
+          test -n "$IMAGE_TAG" || (echo "IMAGE_TAG is empty" && exit 1)
+
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
@@ -77,18 +85,16 @@ jobs:
 
       - name: Update image tag
         env:
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
           IMAGE_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/admin-api
           FILE: app/admin-api/k8s/admin-api-deployment.yaml
           CONTAINER: admin-api
         run: |
           test -f "$FILE" || { echo "Not found: $FILE"; exit 1; }
           yq -i '
-            (.spec.template.spec.containers[] 
-              | select(.name == env(CONTAINER)) 
+            (.spec.template.spec.containers[]
+              | select(.name == env(CONTAINER))
               | .image) = (env(IMAGE_REPO) + ":" + env(IMAGE_TAG))
           ' "$FILE"
-          echo "Changed:"
           git --no-pager diff -- "$FILE" || true
 
       - name: Commit & push
@@ -101,4 +107,3 @@ jobs:
           git commit -m "chore(admin-api): bump image to ${IMAGE_TAG}" || echo "No changes to commit"
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/devapihub/argocd.git
           git push origin HEAD:main
-  
