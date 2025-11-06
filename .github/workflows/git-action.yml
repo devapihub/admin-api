@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Maven Action
+        uses: s4u/setup-maven-action@v1.2.1
+        with:
+          java-version: 21
+          maven-version: 3.8.4
+
+      - name: Build with Maven
+        run: mvn clean install
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Artifact Job
+        uses: actions/upload-artifact@v3
+        with:
+          name: jar-file
+          path: target/admin-1.0.0.jar
+
+  pack:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Download artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: jar-file
+          path: target/admin-1.0.0.jar
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/admin-api:latest
+

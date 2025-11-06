@@ -11,9 +11,16 @@ import java.util.Map;
 @RequestMapping("/")
 @Slf4j
 public class AdminController {
-    @GetMapping("")
+    @GetMapping
     public Object hello() {
-        log.info("Admin endpoint accessed");
-        return Map.of("status", "OK");
+        return Map.of("status", "OK", "message", "Welcome Admin Service V8");
     }
+
+    @GetMapping("user")
+    public Object getUser() {
+        return Map.of("status", "OK",
+                "data", Map.of("id", 1, "username", "Hugh")
+        );
+    }
+
 }
