@@ -13,7 +13,7 @@ import java.util.Map;
 public class AdminController {
     @GetMapping
     public Object hello() {
-        return Map.of("status", "OK", "message", "Welcome Admin Service V2 Test");
+        return Map.of("status", "OK", "message", "Welcome Admin Service V2 Test 2 times");
     }
 
     @GetMapping("user")
