@@ -50,5 +50,9 @@ public record CustomUserDetails(User user) implements UserDetails {
         return true;
     }
 
+    public User getUser() {
+        return user;
+    }
+
 }
 
