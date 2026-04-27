@@ -18,7 +18,7 @@ import java.util.List;
 public class AdminController {
     @GetMapping("/public/hello")
     public String publicHello() {
-        return "Public: không cần token";
+        return "Hello fen !!!";
     }
 
     @GetMapping("/user/profile")
