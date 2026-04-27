@@ -5,8 +5,8 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://61.14.234.12:27017/admin_db
+      uri: ${MONGODB_URI:mongodb://61.14.234.12:27017/admin_db}
 app:
   jwt:
-    secret: "12345678901234567890123456789012"
-    expiration-ms: 86400000
+    secret: ${JWT_SECRET:12345678901234567890123456789012}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
