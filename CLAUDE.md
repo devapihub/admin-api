@@ -73,10 +73,23 @@ Khi user yêu cầu **push và để tôi review**, chỉ thực hiện:
 4. Tạo Pull Request vào master (link với issue vừa tạo)
 5. Dừng lại — **không merge**, chờ user review và quyết định
 
+## Infrastructure
+
+**Docker Hub:** `trivip002/admin-api` — build with `--platform linux/amd64`
+
+**Kubernetes (ArgoCD):**
+- Namespace: `admin-api`
+- Deployment: 2 replicas, RollingUpdate (maxSurge=1, maxUnavailable=0)
+- Secret name: `admin-api-secret` — keys: `MONGODB_URI`, `JWT_SECRET`
+- Health check endpoint: `GET /api/actuator/health`
+- GitOps repo: `devapihub/argocd`, manifest path: `app/admin-api/k8s/admin-api-deployment.yaml`
+
+**MongoDB:** `mongodb://admin:<password>@103.165.144.81:27017/shop_dev?authSource=admin`
+
 ## CI/CD
 
-GitHub Actions (`.github/workflows/git-action.yml`) on push to `main`:
-1. Maven build (`mvn -B -ntp clean install`, Java 21 with dependency cache)
-2. Docker buildx → DockerHub (tagged with short git SHA + `latest`)
+GitHub Actions (`.github/workflows/git-action.yml`) on push to `master`:
+1. Maven build (`mvn -B -ntp clean install`, Java 21, MongoDB service container on port 27017)
+2. Docker buildx → DockerHub `trivip002/admin-api` (tagged with short git SHA + `latest`)
 3. Updates ArgoCD GitOps repo with new image tag
 4. Sends Telegram deployment notification
