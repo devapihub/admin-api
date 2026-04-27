@@ -9,6 +9,11 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       IMAGE_TAG: ${{ steps.tag.outputs.IMAGE_TAG }}
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
