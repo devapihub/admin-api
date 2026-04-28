@@ -1,0 +1,47 @@
+### ============================================================
+### ROLES — Quản lý role & gán permission vào role (yêu cầu ROLE_ADMIN)
+### ============================================================
+
+### [1] Lấy danh sách tất cả roles (kèm permissions)
+GET {{baseUrl}}/admin/roles
+Authorization: Bearer {{token}}
+
+### [2] Tạo role ROLE_MANAGER
+POST {{baseUrl}}/admin/roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "ROLE_MANAGER"
+}
+
+### [3] Tạo role ROLE_VIEWER
+POST {{baseUrl}}/admin/roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "ROLE_VIEWER"
+}
+
+### [4] Gán nhiều permissions vào role
+# Thay {{roleId}} bằng id role, điền permissionIds từ kết quả GET /admin/permissions
+POST {{baseUrl}}/admin/roles/{{roleId}}/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "permissionIds": [
+    "permissionId1",
+    "permissionId2"
+  ]
+}
+
+### [5] Gỡ một permission khỏi role
+# Thay {{roleId}} và {{permissionId}} bằng id thực tế
+DELETE {{baseUrl}}/admin/roles/{{roleId}}/permissions/{{permissionId}}
+Authorization: Bearer {{token}}
+
+### [6] Xóa role theo ID
+DELETE {{baseUrl}}/admin/roles/{{roleId}}
+Authorization: Bearer {{token}}

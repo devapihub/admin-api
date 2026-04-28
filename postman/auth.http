@@ -1,0 +1,39 @@
+### ============================================================
+### AUTH — Đăng ký & Đăng nhập
+### ============================================================
+
+### [1] Đăng ký user mới
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "password123"
+}
+
+### [2] Đăng ký admin (dùng để test sau khi gán ROLE_ADMIN thủ công trong DB)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### [3] Đăng nhập — copy token từ response vào http-client.env.json > "token"
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "password123"
+}
+
+### [4] Đăng nhập với admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}

@@ -9,9 +9,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse {
-    private String username;
-    private String token;
-    private List<String> roles;
-    private List<String> permissions;
+public class RoleDto {
+    private String id;
+    private String name;
+    private List<PermissionDto> permissions;
 }
