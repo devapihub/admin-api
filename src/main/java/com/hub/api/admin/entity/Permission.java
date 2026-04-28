@@ -5,17 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Data
-@Document(collection = "roles")
+@Document(collection = "permissions")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role {
+public class Permission {
 
     @Id
     private String id;
@@ -23,11 +19,10 @@ public class Role {
     @Indexed(unique = true)
     private String name;
 
-    @DBRef
-    private Set<Permission> permissions = new HashSet<>();
+    private String description;
 
-    public Role(String name) {
+    public Permission(String name, String description) {
         this.name = name;
+        this.description = description;
     }
 }
-

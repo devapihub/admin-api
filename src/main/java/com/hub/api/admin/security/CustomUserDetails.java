@@ -8,15 +8,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public record CustomUserDetails(User user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles()
-                .stream()
-                .map(Role::getName) // "ROLE_USER"
-                .map(SimpleGrantedAuthority::new)
+        return user.getRoles().stream()
+                .flatMap(role -> {
+                    Stream<SimpleGrantedAuthority> roleAuthority =
+                            Stream.of(new SimpleGrantedAuthority(role.getName()));
+                    Stream<SimpleGrantedAuthority> permissionAuthorities =
+                            role.getPermissions().stream()
+                                    .map(p -> new SimpleGrantedAuthority(p.getName()));
+                    return Stream.concat(roleAuthority, permissionAuthorities);
+                })
                 .collect(Collectors.toSet());
     }
 

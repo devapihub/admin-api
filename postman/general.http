@@ -1,0 +1,17 @@
+### ============================================================
+### GENERAL — Public & User endpoints
+### ============================================================
+
+### [1] Public hello — không cần token
+GET {{baseUrl}}/public/hello
+
+### [2] Xem profile user (yêu cầu ROLE_USER hoặc ROLE_ADMIN)
+GET {{baseUrl}}/user/profile
+Authorization: Bearer {{token}}
+
+### [3] Admin secret (yêu cầu ROLE_ADMIN)
+GET {{baseUrl}}/admin/secret
+Authorization: Bearer {{token}}
+
+### [4] Health check
+GET {{baseUrl}}/actuator/health

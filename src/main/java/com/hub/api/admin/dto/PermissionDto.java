@@ -4,14 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class PermissionDto {
     private String id;
-    private String username;
-    private List<String> roles;
-    private List<String> permissions;
+    private String name;
+    private String description;
 }

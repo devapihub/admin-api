@@ -1,6 +1,7 @@
 package com.hub.api.admin.controller;
 
 import com.hub.api.admin.dto.UserDto;
+import com.hub.api.admin.entity.Permission;
 import com.hub.api.admin.entity.Role;
 import com.hub.api.admin.security.CustomUserDetails;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +31,13 @@ public class AdminController {
         List<String> roles = user.getRoles().stream()
                 .map(Role::getName)
                 .toList();
+        List<String> permissions = user.getRoles().stream()
+                .flatMap(r -> r.getPermissions().stream())
+                .map(Permission::getName)
+                .distinct()
+                .toList();
 
-        return new UserDto(
-                user.getId(),
-                user.getUsername(),
-                roles
-        );
+        return new UserDto(user.getId(), user.getUsername(), roles, permissions);
     }
 
     @GetMapping("/admin/secret")

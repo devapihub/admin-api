@@ -3,6 +3,7 @@ package com.hub.api.admin.controller;
 import com.hub.api.admin.dto.AuthResponse;
 import com.hub.api.admin.dto.LoginRequest;
 import com.hub.api.admin.dto.RegisterRequest;
+import com.hub.api.admin.entity.Permission;
 import com.hub.api.admin.entity.Role;
 import com.hub.api.admin.entity.User;
 import com.hub.api.admin.repository.RoleRepository;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,19 +71,27 @@ public class AuthController {
             var auth = authenticationManager.authenticate(authToken);
 
             CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-            var roles = userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
+            var user = userDetails.getUser();
+            var roles = user.getRoles().stream()
+                    .map(com.hub.api.admin.entity.Role::getName)
+                    .collect(Collectors.toList());
+            var permissions = user.getRoles().stream()
+                    .flatMap(r -> r.getPermissions().stream())
+                    .map(Permission::getName)
+                    .distinct()
                     .collect(Collectors.toList());
 
             var extraClaims = java.util.Map.<String, Object>of(
-                    "roles", roles
+                    "roles", roles,
+                    "permissions", permissions
             );
             String jwt = jwtService.generateToken(userDetails, extraClaims);
 
             AuthResponse response = new AuthResponse(
                     userDetails.getUsername(),
                     jwt,
-                    roles
+                    roles,
+                    permissions
             );
 
             return ResponseEntity.ok(response);

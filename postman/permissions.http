@@ -1,0 +1,52 @@
+### ============================================================
+### PERMISSIONS — Quản lý permission (yêu cầu ROLE_ADMIN)
+### ============================================================
+
+### [1] Lấy danh sách tất cả permissions
+GET {{baseUrl}}/admin/permissions
+Authorization: Bearer {{token}}
+
+### [2] Tạo permission READ_USER
+POST {{baseUrl}}/admin/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "READ_USER",
+  "description": "Xem thông tin user"
+}
+
+### [3] Tạo permission WRITE_USER
+POST {{baseUrl}}/admin/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "WRITE_USER",
+  "description": "Tạo và cập nhật user"
+}
+
+### [4] Tạo permission DELETE_USER
+POST {{baseUrl}}/admin/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "DELETE_USER",
+  "description": "Xóa user"
+}
+
+### [5] Tạo permission READ_ORDER
+POST {{baseUrl}}/admin/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "READ_ORDER",
+  "description": "Xem danh sách đơn hàng"
+}
+
+### [6] Xóa permission theo ID
+# Thay {{permissionId}} bằng id thực tế lấy từ response [1] hoặc [2]
+DELETE {{baseUrl}}/admin/permissions/{{permissionId}}
+Authorization: Bearer {{token}}
