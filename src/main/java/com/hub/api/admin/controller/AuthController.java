@@ -17,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,6 +100,11 @@ public class AuthController {
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
+    }
+
+    @GetMapping("/google")
+    public void initiateGoogleLogin(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/api/oauth2/authorization/google");
     }
 }
 
