@@ -26,4 +26,4 @@ app:
     secret: ${JWT_SECRET:12345678901234567890123456789012}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000}
   oauth2:
-    frontend-redirect-uri: ${FRONTEND_REDIRECT_URI:http://localhost:3000/oauth2/callback}
+    frontend-redirect-uri: http://localhost:3000/oauth2/callback
