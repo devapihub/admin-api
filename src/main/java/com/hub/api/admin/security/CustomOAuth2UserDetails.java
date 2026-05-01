@@ -1,7 +1,7 @@
 package com.hub.api.admin.security;
 
-import com.hub.api.admin.entity.Role;
 import com.hub.api.admin.entity.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 public class CustomOAuth2UserDetails implements OAuth2User {
 
+    @Getter
     private final User user;
     private final Map<String, Object> attributes;
 
@@ -45,7 +46,4 @@ public class CustomOAuth2UserDetails implements OAuth2User {
         return user.getProviderId();
     }
 
-    public User getUser() {
-        return user;
-    }
 }
