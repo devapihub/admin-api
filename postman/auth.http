@@ -1,6 +1,12 @@
 ### ============================================================
-### AUTH — Đăng ký & Đăng nhập
+### AUTH — Đăng ký, Đăng nhập & Google OAuth2
 ### ============================================================
+
+### [0] Đăng nhập bằng Google — mở URL này trên trình duyệt
+# Trình duyệt → Google consent → redirect về frontend?token=...
+# GET http://localhost:8080/api/auth/google
+
+
 
 ### [1] Đăng ký user mới
 POST {{baseUrl}}/auth/register

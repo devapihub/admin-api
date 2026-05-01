@@ -25,6 +25,12 @@ public class User {
 
     private String password;
 
+    private String email;
+
+    private String provider = "local"; // "local" | "google"
+
+    private String providerId; // Google sub claim
+
     @DBRef
     private Set<Role> roles = new HashSet<>();
 }
