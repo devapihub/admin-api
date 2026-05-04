@@ -59,8 +59,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(a -> a
-                                .authorizationRequestRepository(cookieRepo))
+                        .authorizationEndpoint(a -> a.authorizationRequestRepository(cookieRepo))
                         .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(new SimpleUrlAuthenticationFailureHandler(

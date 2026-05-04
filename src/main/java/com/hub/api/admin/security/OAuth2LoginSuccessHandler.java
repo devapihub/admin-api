@@ -40,6 +40,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
+        log.info("onAuthenticationSuccess called: principal={}, class={}, authorities={}",
+                authentication.getPrincipal(),
+                authentication.getPrincipal().getClass().getName(),
+                authentication.getAuthorities());
         OAuth2User principal = (OAuth2User) authentication.getPrincipal();
 
         User user;
