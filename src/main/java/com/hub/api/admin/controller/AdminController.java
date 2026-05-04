@@ -12,14 +12,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 @RestController
 @RequestMapping("/")
 @Slf4j
 public class AdminController {
+
+    private static final Set<String> SENSITIVE_KEYS = Set.of(
+            "JWT_SECRET", "MONGODB_URI", "GOOGLE_CLIENT_SECRET",
+            "PASSWORD", "SECRET", "TOKEN", "KEY", "CREDENTIAL"
+    );
+
     @GetMapping("/public/hello")
     public String publicHello() {
         return "Hello fen !!!";
+    }
+
+    @GetMapping("/admin/env")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Map<String, String> env() {
+        Map<String, String> result = new TreeMap<>();
+        System.getenv().forEach((key, value) -> {
+            boolean sensitive = SENSITIVE_KEYS.stream()
+                    .anyMatch(s -> key.toUpperCase().contains(s));
+            result.put(key, sensitive ? mask(value) : value);
+        });
+        return result;
+    }
+
+    private String mask(String value) {
+        if (value == null || value.length() <= 4) return "****";
+        return value.substring(0, 4) + "*".repeat(value.length() - 4);
     }
 
     @GetMapping("/user/profile")
