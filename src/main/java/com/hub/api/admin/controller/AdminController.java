@@ -32,7 +32,6 @@ public class AdminController {
     }
 
     @GetMapping("/admin/env")
-    @PreAuthorize("hasRole('ADMIN')")
     public Map<String, String> env() {
         Map<String, String> result = new TreeMap<>();
         System.getenv().forEach((key, value) -> {
