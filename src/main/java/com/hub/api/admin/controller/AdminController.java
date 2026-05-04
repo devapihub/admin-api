@@ -31,7 +31,7 @@ public class AdminController {
         return "Hello fen !!!";
     }
 
-    @GetMapping("/admin/env")
+    @GetMapping("/public/env")
     public Map<String, String> env() {
         Map<String, String> result = new TreeMap<>();
         System.getenv().forEach((key, value) -> {
