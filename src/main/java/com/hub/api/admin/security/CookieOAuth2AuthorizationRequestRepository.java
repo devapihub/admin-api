@@ -1,6 +1,5 @@
 package com.hub.api.admin.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,6 +37,7 @@ public class CookieOAuth2AuthorizationRequestRepository
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(COOKIE_MAX_AGE);
+        cookie.setAttribute("SameSite", "Lax");
         response.addCookie(cookie);
     }
 
