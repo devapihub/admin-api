@@ -30,13 +30,14 @@ public class CookieOAuth2AuthorizationRequestRepository
                                          HttpServletRequest request,
                                          HttpServletResponse response) {
         if (authorizationRequest == null) {
-            deleteCookie(response);
+            deleteCookie(request, response);
             return;
         }
         Cookie cookie = new Cookie(COOKIE_NAME, serialize(authorizationRequest));
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(COOKIE_MAX_AGE);
+        cookie.setSecure(isSecureRequest(request));
         cookie.setAttribute("SameSite", "Lax");
         response.addCookie(cookie);
     }
@@ -45,7 +46,7 @@ public class CookieOAuth2AuthorizationRequestRepository
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
                                                                   HttpServletResponse response) {
         OAuth2AuthorizationRequest authRequest = loadAuthorizationRequest(request);
-        deleteCookie(response);
+        deleteCookie(request, response);
         return authRequest;
     }
 
@@ -57,11 +58,18 @@ public class CookieOAuth2AuthorizationRequestRepository
                 .findFirst();
     }
 
-    private void deleteCookie(HttpServletResponse response) {
+    private boolean isSecureRequest(HttpServletRequest request) {
+        return request.isSecure()
+                || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto"));
+    }
+
+    private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie(COOKIE_NAME, "");
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
+        cookie.setSecure(isSecureRequest(request));
+        cookie.setAttribute("SameSite", "Lax");
         response.addCookie(cookie);
     }
 
@@ -70,7 +78,11 @@ public class CookieOAuth2AuthorizationRequestRepository
     }
 
     private OAuth2AuthorizationRequest deserialize(String value) {
-        return (OAuth2AuthorizationRequest) SerializationUtils.deserialize(
-                Base64.getUrlDecoder().decode(value));
+        try {
+            return (OAuth2AuthorizationRequest) SerializationUtils.deserialize(
+                    Base64.getUrlDecoder().decode(value));
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
