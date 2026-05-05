@@ -1,6 +1,5 @@
 package com.hub.api.admin.config;
 
-import com.hub.api.admin.security.CookieOAuth2AuthorizationRequestRepository;
 import com.hub.api.admin.security.CustomOAuth2UserService;
 import com.hub.api.admin.security.JwtAuthenticationFilter;
 import com.hub.api.admin.security.OAuth2LoginFailureHandler;
@@ -23,16 +22,13 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
-    private final CookieOAuth2AuthorizationRequestRepository cookieRepo;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
-                          OAuth2LoginFailureHandler oAuth2LoginFailureHandler,
-                          CookieOAuth2AuthorizationRequestRepository cookieRepo) {
+                          OAuth2LoginFailureHandler oAuth2LoginFailureHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
         this.oAuth2LoginFailureHandler = oAuth2LoginFailureHandler;
-        this.cookieRepo = cookieRepo;
     }
 
     @Bean
@@ -58,7 +54,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(a -> a.authorizationRequestRepository(cookieRepo))
                         .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(oAuth2LoginFailureHandler)
