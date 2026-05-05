@@ -21,17 +21,14 @@ import java.util.Map;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
-    private final CookieOAuth2AuthorizationRequestRepository cookieRepo;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final String frontendRedirectUri;
 
     public OAuth2LoginSuccessHandler(
             JwtService jwtService,
-            CookieOAuth2AuthorizationRequestRepository cookieRepo,
             CustomOAuth2UserService customOAuth2UserService,
             @Value("${app.oauth2.frontend-redirect-uri}") String frontendRedirectUri) {
         this.jwtService = jwtService;
-        this.cookieRepo = cookieRepo;
         this.customOAuth2UserService = customOAuth2UserService;
         this.frontendRedirectUri = frontendRedirectUri;
     }
@@ -70,8 +67,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         Map<String, Object> extraClaims = Map.of("roles", roles, "permissions", permissions);
         String jwt = jwtService.generateToken(new CustomUserDetails(user), extraClaims);
 
-        cookieRepo.removeAuthorizationRequest(request, response);
-
-        response.sendRedirect(frontendRedirectUri + "?token=" + jwt  + "&username=" + user.getUsername());
+        response.sendRedirect(frontendRedirectUri + "?token=" + jwt + "&username=" + user.getUsername());
     }
 }
