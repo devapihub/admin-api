@@ -1,6 +1,5 @@
 package com.hub.api.admin.security;
 
-import com.hub.api.admin.entity.Role;
 import com.hub.api.admin.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

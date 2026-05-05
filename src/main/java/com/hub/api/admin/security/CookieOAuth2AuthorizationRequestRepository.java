@@ -3,6 +3,7 @@ package com.hub.api.admin.security;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import org.springframework.util.SerializationUtils;
 import java.util.Arrays;
 import java.util.Base64;
 
+@Slf4j
 @Component
 public class CookieOAuth2AuthorizationRequestRepository
         implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
@@ -20,9 +22,20 @@ public class CookieOAuth2AuthorizationRequestRepository
 
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
-        return getCookieValue(request, COOKIE_NAME)
-                .map(this::deserialize)
-                .orElse(null);
+        java.util.Optional<String> cookieValue = getCookieValue(request, COOKIE_NAME);
+        if (cookieValue.isEmpty()) {
+            String cookieNames = request.getCookies() == null ? "none" :
+                    Arrays.stream(request.getCookies()).map(Cookie::getName).toList().toString();
+            log.warn("[OAuth2] loadAuthorizationRequest: cookie '{}' NOT found. uri={}, presentCookies={}",
+                    COOKIE_NAME, request.getRequestURI(), cookieNames);
+            return null;
+        }
+        log.debug("[OAuth2] loadAuthorizationRequest: cookie found, valueLength={}", cookieValue.get().length());
+        OAuth2AuthorizationRequest authRequest = deserialize(cookieValue.get());
+        if (authRequest == null) {
+            log.warn("[OAuth2] loadAuthorizationRequest: cookie present but deserialization returned null");
+        }
+        return authRequest;
     }
 
     @Override
@@ -33,11 +46,15 @@ public class CookieOAuth2AuthorizationRequestRepository
             deleteCookie(request, response);
             return;
         }
-        Cookie cookie = new Cookie(COOKIE_NAME, serialize(authorizationRequest));
+        String serialized = serialize(authorizationRequest);
+        boolean secure = isSecureRequest(request);
+        log.debug("[OAuth2] saveAuthorizationRequest: setting cookie, valueLength={}, secure={}, state={}",
+                serialized.length(), secure, authorizationRequest.getState());
+        Cookie cookie = new Cookie(COOKIE_NAME, serialized);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(COOKIE_MAX_AGE);
-        cookie.setSecure(isSecureRequest(request));
+        cookie.setSecure(secure);
         cookie.setAttribute("SameSite", "Lax");
         response.addCookie(cookie);
     }
@@ -82,6 +99,7 @@ public class CookieOAuth2AuthorizationRequestRepository
             return (OAuth2AuthorizationRequest) SerializationUtils.deserialize(
                     Base64.getUrlDecoder().decode(value));
         } catch (Exception e) {
+            log.error("[OAuth2] deserialize failed: {} - {}", e.getClass().getSimpleName(), e.getMessage());
             return null;
         }
     }
