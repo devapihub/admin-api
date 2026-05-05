@@ -4,11 +4,6 @@ server:
     context-path: /api
   forward-headers-strategy: NATIVE
 spring:
-  session:
-    store-type: mongodb
-    mongodb:
-      collection-name: sessions
-    timeout: 10m
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/admin_db}
