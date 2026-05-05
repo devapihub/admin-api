@@ -27,6 +27,16 @@ mvn spring-boot:run
 docker buildx build --platform linux/amd64 -t <image>:tag --push .
 ```
 
+## Pre-commit requirement
+
+**Bắt buộc chạy build thành công trước khi commit.** Dùng lệnh sau để kiểm tra:
+
+```bash
+mvn clean package -DskipTests
+```
+
+Chỉ được phép commit khi output kết thúc bằng `BUILD SUCCESS`. Nếu build fail, phải fix lỗi trước.
+
 ## Architecture
 
 Spring Boot 3.5.7 REST API (Java 21) with JWT authentication, MongoDB persistence, and RBAC. Runs on port 8080, context path `/api`.
