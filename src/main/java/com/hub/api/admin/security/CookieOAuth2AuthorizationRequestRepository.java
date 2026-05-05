@@ -49,8 +49,8 @@ public class CookieOAuth2AuthorizationRequestRepository
         }
         String serialized = serialize(authorizationRequest);
         boolean secure = isSecureRequest(request);
-        log.debug("[OAuth2] saveAuthorizationRequest: setting cookie, valueLength={}, secure={}, state={}",
-                serialized.length(), secure, authorizationRequest.getState());
+        log.info("[OAuth2] saveAuthorizationRequest: setting cookie {}, valueLength={}, value {}, secure={}, state={}",
+                authorizationRequest.getRedirectUri(), serialized.length(), serialized, secure, authorizationRequest.getState());
         Cookie cookie = new Cookie(COOKIE_NAME, serialized);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
