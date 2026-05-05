@@ -49,14 +49,17 @@ public class CookieOAuth2AuthorizationRequestRepository
         }
         String serialized = serialize(authorizationRequest);
         boolean secure = isSecureRequest(request);
-        log.info("[OAuth2] saveAuthorizationRequest: setting cookie {}, valueLength={}, value {}, secure={}, state={}",
-                authorizationRequest.getRedirectUri(), serialized.length(), serialized, secure, authorizationRequest.getState());
+        // SameSite=None requires Secure=true (HTTPS). For local HTTP dev, fall back to Lax.
+        // OAuth2 callbacks come from Google (cross-site redirect), so Lax blocks them in modern browsers.
+        String sameSite = secure ? "None" : "Lax";
+        log.info("[OAuth2] saveAuthorizationRequest: setting cookie {}, valueLength={}, secure={}, sameSite={}, state={}",
+                authorizationRequest.getRedirectUri(), serialized.length(), secure, sameSite, authorizationRequest.getState());
         Cookie cookie = new Cookie(COOKIE_NAME, serialized);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(COOKIE_MAX_AGE);
         cookie.setSecure(secure);
-        cookie.setAttribute("SameSite", "Lax");
+        cookie.setAttribute("SameSite", sameSite);
         response.addCookie(cookie);
     }
 
@@ -82,12 +85,14 @@ public class CookieOAuth2AuthorizationRequestRepository
     }
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
+        boolean secure = isSecureRequest(request);
+        String sameSite = secure ? "None" : "Lax";
         Cookie cookie = new Cookie(COOKIE_NAME, "");
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
-        cookie.setSecure(isSecureRequest(request));
-        cookie.setAttribute("SameSite", "Lax");
+        cookie.setSecure(secure);
+        cookie.setAttribute("SameSite", sameSite);
         response.addCookie(cookie);
     }
 
