@@ -45,7 +45,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     public User findOrCreateUser(String providerId, String email, Map<String, Object> attributes) {
-        // Link tới existing local account nếu email trùng
         return userRepository.findByEmail(email)
                 .map(existingUser -> {
                     existingUser.setProvider("google");
