@@ -26,8 +26,8 @@ public class CookieOAuth2AuthorizationRequestRepository
         if (cookieValue.isEmpty()) {
             String cookieNames = request.getCookies() == null ? "none" :
                     Arrays.stream(request.getCookies()).map(Cookie::getName).toList().toString();
-            log.warn("[OAuth2] loadAuthorizationRequest: cookie '{}' NOT found. uri={}, presentCookies={}",
-                    COOKIE_NAME, request.getRequestURI(), cookieNames);
+            log.warn("[OAuth2] loadAuthorizationRequest: cookie '{}' NOT found. Host {} uri={}, presentCookies={}",
+                    COOKIE_NAME, request.getRemoteHost(), request.getRequestURI(), cookieNames);
             return null;
         }
         log.debug("[OAuth2] loadAuthorizationRequest: cookie found, valueLength={}", cookieValue.get().length());
